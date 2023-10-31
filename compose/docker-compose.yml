@@ -128,6 +128,16 @@ services:
 
     volumes:
       - kong_data:/var/lib/postgresql/data
+  konga-prepare:
+    image: pantsel/konga:next
+    command: "-c prepare -a postgres -u postgresql://kong:kong@localhost:5432/konga_db"
+    networks:
+      - kong-net
+    restart: on-failure
+    links:
+      - db
+    depends_on:
+      - db
   konga:
     image: pantsel/konga
     ports:
@@ -136,6 +146,8 @@ services:
       - kong:kong
     container_name: konga
     environment:
+      - DB_ADAPTER = postgres
+      - DB_HOST = db
       - NODE_ENV = production
 secrets:
   kong_postgres_password:
