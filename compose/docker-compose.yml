@@ -96,7 +96,6 @@ services:
       - ./config:/opt/kong
     security_opt:
       - no-new-privileges
-
   db:
     image: postgres:9.5
     profiles: [ "database" ]
@@ -124,9 +123,20 @@ services:
     tty: true
     networks:
       - kong-net
+    ports:
+      - "127.0.0.1:5432:5432/tcp"
+
     volumes:
       - kong_data:/var/lib/postgresql/data
-
+  konga:
+    image: pantsel/konga
+    ports:
+      - 9000:1337
+    links:
+      - kong:kong
+    container_name: konga
+    environment:
+      - NODE_ENV = production
 secrets:
   kong_postgres_password:
     file: ./POSTGRES_PASSWORD
